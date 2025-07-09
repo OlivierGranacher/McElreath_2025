@@ -3,19 +3,42 @@ title: "Chapter 2 - Small Worlds and Large Worlds"
 author: "OG"
 date: "7/7/2025"
 output: html_document
+fig.height: 5
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(glue)
 ```
 
-## R Markdown
+## Water Land Proportion - Globe tossing - page 28
+Toss the Globe 9 times and note the Water and Land occurences. p is the proportion of Water.
+The result is 6 W and 3L.
+Evaluation of the posterior with the Grid Method.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+```{r grid_eval, eval=TRUE}
+# Number of points on the grid
+N <- 50
+# data
+W <- 6
+L <- 3
+# Prior 
+prior <- rep(1, N)
+# P(W = 6, L = 3 / p) = dbinom(6, 9, p)
+# Probabiliies of the grid
+p_grid <- seq(0, 1, length.out = N) 
+# Prior x P(W = 6, L = 3 ) for each point of the grid
+Posterior_raw <-  dbinom(W, W + L, p_grid)
+# Standardisation of posterior
+Posterior <-  Posterior_raw/sum(Posterior_raw)
+```
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
+```{r, include=TRUE, eval=TRUE}
+results <- data.frame(p = p_grid, post = Posterior)
+ggplot(results, aes(p, post)) +
+  geom_line() +
+  labs(title = glue("Posterior for W = {W} and L = {L}"))
 ```
 
