@@ -42,3 +42,37 @@ ggplot(results, aes(p, post)) +
   labs(title = glue("Posterior for W = {W} and L = {L}"))
 ```
 
+## Simulating MCMC page 45
+
+```{r, mcmc}
+N <- 1000
+W <- 6
+L <- 3
+p <- rep(NA, N)
+p[1] <- 0.5
+
+for (i in 2:N) {
+  p_new <- rnorm(1, 0.5, 0.1)
+  if (p_new < 0 ) p_new <- 1 + p_new
+  if (p_new > 1 ) p_new <- 2 - p_new
+  q0 <- dbinom(W, W + L, p[i-1])
+  q1 <- dbinom(W, W + L, p_new)
+  p[i] <- ifelse(runif(1) < q1/q0, p_new, p[i - 1])
+}
+p_moy <- mean(p)
+
+```
+
+```{r plot_result}
+# Plot of chain
+ggplot(data.frame(x = 1:N, p = p), aes(x, p)) + 
+  geom_line() +
+  
+  geom_hline(yintercept = p_moy, color = "darkorange")
+# Plot of posterior
+ggplot(data.frame(x = 1:N, p = p), aes(p)) +
+  geom_density() + 
+  labs(title = "Post of globe tossing with very simple MCMC")
+```
+
+
