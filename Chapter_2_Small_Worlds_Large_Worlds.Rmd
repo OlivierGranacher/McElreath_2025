@@ -39,7 +39,7 @@ Posterior <-  Posterior_raw/sum(Posterior_raw)
 results <- data.frame(p = p_grid, post = Posterior)
 ggplot(results, aes(p, post)) +
   geom_line() +
-  labs(title = glue("Posterior for W = {W} and L = {L}"))
+  labs(title = glue("Posterior for W = {W} and L = {L} - Grid Method with {N} points"))
 ```
 
 ## Simulating MCMC page 45
@@ -49,10 +49,11 @@ N <- 1000
 W <- 6
 L <- 3
 p <- rep(NA, N)
-p[1] <- 0.5
+p[1] <- 0.6
 
 for (i in 2:N) {
-  p_new <- rnorm(1, 0.5, 0.1)
+  p_new <- rnorm(1, p[i - 1], 0.1)
+  # p_new <- runif(1) converge moins bien :)
   if (p_new < 0 ) p_new <- 1 + p_new
   if (p_new > 1 ) p_new <- 2 - p_new
   q0 <- dbinom(W, W + L, p[i-1])
@@ -63,16 +64,17 @@ p_moy <- mean(p)
 
 ```
 
-```{r plot_result}
+```{r plot_result, include=TRUE}
 # Plot of chain
 ggplot(data.frame(x = 1:N, p = p), aes(x, p)) + 
   geom_line() +
-  
-  geom_hline(yintercept = p_moy, color = "darkorange")
+  geom_hline(yintercept = p_moy, color = "darkorange") +
+  labs(title = glue("Posterior for W = {W} and L = {L} - MCMC Method with {N} points"))
 # Plot of posterior
 ggplot(data.frame(x = 1:N, p = p), aes(p)) +
   geom_density() + 
-  labs(title = "Post of globe tossing with very simple MCMC")
+  geom_vline(xintercept = p_moy, color = "darkorange") +
+  labs(title = glue("Posterior for W = {W} and L = {L} - MCMC Method with {N} points"))
 ```
 
 
