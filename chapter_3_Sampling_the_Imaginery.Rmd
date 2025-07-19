@@ -1,0 +1,70 @@
+---
+title: "Chapter 3 - Sampling the imaginery"
+author: "OG"
+date: "7/16/2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(glue)
+```
+
+## 
+
+## 3.1 Sampling from the posterior  - page 52
+
+```{r "3_1_1"}
+# globe tossing grid approximation - calculating the posterior for the globe tossing example
+W <- 6 # Water
+L <- 3 # Land
+# What is the posterior distribution of the % of Water on Earth?
+N <- 100 # nb of values in grid
+prior <-  rep(1, N)
+# Probabilities of grid to test
+p <-seq(0, 1, length.out = N)
+grid_p <- p
+# Likelihood function
+lkl <- function(x, .W = W, .L = L) {
+stopifnot(x >= 0)
+stopifnot(x <= 1)
+dbinom(.W, .W + .L, x)
+}
+post <- lkl(p * prior)
+post <- dbinom(W, W + L, p )
+post <- post / sum(post)
+```
+
+```{r plot_density}
+ggplot(data = data.frame(x = p, y = post)) +
+  geom_line(aes(x, y))
+
+```
+
+```{r sampling_post}
+# Sampling proportional to posterior
+N <- 1e4
+samples <- sample(
+       x = grid_p, # Valeurs de la probabilité de la grille
+       prob = post,
+       replace = T,
+       size = N
+       )
+hist(samples, xlab = "probs", ylab = "", main = "Resampling from the Posterior", sub = "N = 10000", yaxt = "n", xlim = c(0, 1))
+```
+## Practice Page 69
+```{r E1, include=TRUE}
+# 3E1
+sum(samples < 0.2)/N
+# 3E2
+sum(samples > 0.8)/N
+# 3E3
+sum(samples > 0.8)/N + sum(samples < 0.2)/N
+# 3E4 20% of samples lie below which value of p?
+quantile(samples, 0.8)
+# 3E5
+quantile(samples, 0.2)
+# 3E6
+```
+
