@@ -101,12 +101,21 @@ quantile(samples, 2/3)
 # Globe tossing grid example again
 W <- 8
 L <- 7
-N_grid <- 100 # Number of points for the grid
+N_grid <- 50 # Number of points for the grid
 prior <-  rep(1, N_grid)
 prob_grid <- seq(0, 1, length.out = N_grid)
 likelih <- dbinom(W, W + L, prob = prob_grid * prior)
 posterior <- likelih /sum(likelih)
-plot(x = prob_grid, posterior, type = "l", yaxt = "n", xlab = "", asp = 8, main = "Posterior for W = 8 L= 7", col.main = "red")
+plot(x = prob_grid, posterior, type = "p", yaxt = "n", xlab = "", main = "Posterior for W = 8 L= 7", col.main = "red", xlim = c(0, 1), cex = .5, col = "darkorange3")
+```
+```{r 3M2}
+# Sampling from the posterior
+samples <- sample( x = prob_grid,
+                   size = 1e4,
+                   prob = posterior,
+                   replace = T
+                  )
+hist(samples, yaxt = "n", xlab = "probs", main = "10000 samples from the posterior", col = "red", sub = "W = 8, L = 7", xlim = c(0, 1))
 ```
 
 
