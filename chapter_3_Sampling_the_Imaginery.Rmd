@@ -52,8 +52,19 @@ samples <- sample(
        size = N
        )
 hist(samples, xlab = "probs", ylab = "", main = "Resampling from the Posterior", sub = "N = 10000", yaxt = "n", xlim = c(0, 1))
+# XY plot
+plot(x = 1:N, y = sort(samples), xaxt = "n", xlab = "", cex = 0.2)
 ```
+
+
 ## Practice Page 69
+### 3E
+
+```{r source HDI fn}
+source("R/function_highest_density_interval.R")
+```
+
+
 ```{r E1, include=TRUE}
 # 3E1
 sum(samples < 0.2)/N
@@ -66,5 +77,36 @@ quantile(samples, 0.8)
 # 3E5
 quantile(samples, 0.2)
 # 3E6
+quantile(samples, 0.5)
+highest_density_interval(samples, 0.95)
 ```
+
+```{r check HDI}
+#install.packages("HDInterval")
+HDInterval::hdi(samples, 0.95)
+# Install package bayestestR (easyStats)
+#install.packages("bayestestR")
+bayestestR::hdi(samples, 0.95)
+
+```
+```{r 3E}
+# 3E7
+quantile(samples, 1/3)
+quantile(samples, 2/3)
+```
+
+### 3M
+
+```{r 3M1}
+# Globe tossing grid example again
+W <- 8
+L <- 7
+N_grid <- 100 # Number of points for the grid
+prior <-  rep(1, N_grid)
+prob_grid <- seq(0, 1, length.out = N_grid)
+likelih <- dbinom(W, W + L, prob = prob_grid * prior)
+posterior <- likelih /sum(likelih)
+plot(x = prob_grid, posterior, type = "l", yaxt = "n", xlab = "", asp = 8, main = "Posterior for W = 8 L= 7", col.main = "red")
+```
+
 
