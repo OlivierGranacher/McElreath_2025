@@ -116,6 +116,25 @@ samples <- sample( x = prob_grid,
                    replace = T
                   )
 hist(samples, yaxt = "n", xlab = "probs", main = "10000 samples from the posterior", col = "red", sub = "W = 8, L = 7", xlim = c(0, 1))
+# 90% HPI
+highest_density_interval(samples, 0.9)
 ```
 
+```{r 3M3}
+# Posterior predictive check
+N <- 1000 # nb of draws from the posterior
+W <- 8
+L <- 7
+post_check_15 <- rbinom(N, W + L, samples)
+hist(post_check_15)
+# Prob of 8 W in 15 tosses
+prob_8_15 <- sum(post_check_15 == 8) / N
+```
+
+```{r 3M4}
+# Prob of 6 in 9 tosses
+post_check_9 <- rbinom(N, 9, samples)
+# Prob of 6 W
+hist(post_check_9, xlim = c(0, 9))
+```
 
