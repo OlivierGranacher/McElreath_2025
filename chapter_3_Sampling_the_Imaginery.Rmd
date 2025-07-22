@@ -147,7 +147,7 @@ L <- 7
 N <- 40
 prior <- c(rep(0, N/2), rep(1, N/2))
 grid_probs <- seq(0, 1, length.out = N)
-post <- dbinom(x = W, L + W, grid_probs * prior)
+post <- dbinom(x = W, size = L + W, prob = grid_probs * prior)
 post_std <- post/sum(post)
 # Post Plot
 plot(x = grid_probs, y = post_std, yaxt = "n", ylab = "", main = "Prior = 0 below 0.5")
@@ -166,7 +166,20 @@ prob_6_9_bis <- sum(post_check == 6)/N
 ```
 
 ```{r 3M6}
+# 99% interval of 0.05
+pbinom(q = seq(0, 10, 1), size = 10, prob = .5) # probabilité que le résultat soit inférieur à q 
+qbinom(p = seq(0, 1, 0.1), size = 10, prob = .5) # Nombre de toss pour que la prob soit atteinte
+f_90_interval <- function(.size = 100) {
+  vec <- rbinom(100, size = .size, prob = 0.5)
+  #quantile(vec, c())
+  (quantile(vec, 0.99) - quantile(vec, 0.01))/.size
+}
+f_90_interval(1900)
+```
 
-
+```{r loi_normale}
+# Example de la loi normale
+pnorm(q = seq(-2, 2, 0.1))
+qnorm(seq(0, 1, 0.05))
 ```
 
