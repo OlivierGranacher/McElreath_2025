@@ -136,5 +136,37 @@ prob_8_15 <- sum(post_check_15 == 8) / N
 post_check_9 <- rbinom(N, 9, samples)
 # Prob of 6 W
 hist(post_check_9, xlim = c(0, 9))
+prob_6_9 <- sum(post_check_9 == 6) / N
+```
+
+
+```{r 3M5}
+# prior 0 below p = 0.5
+W <- 8
+L <- 7
+N <- 40
+prior <- c(rep(0, N/2), rep(1, N/2))
+grid_probs <- seq(0, 1, length.out = N)
+post <- dbinom(x = W, L + W, grid_probs * prior)
+post_std <- post/sum(post)
+# Post Plot
+plot(x = grid_probs, y = post_std, yaxt = "n", ylab = "", main = "Prior = 0 below 0.5")
+# HPI 90%
+samples <- sample(grid_probs, size = 1e4, replace = T, prob = post_std)
+highest_density_interval(samples, .9)
+# Posterior predictive check
+N <- 1000
+post_check <- rbinom(N, 15, prob = samples)
+prob_8_15 # previous prediction
+prob_8_15_bis <- sum(post_check == 8)/N
+# Prob 6 in 9
+post_check <- rbinom(N, 9, prob = samples)
+prob_6_9 # previous value
+prob_6_9_bis <- sum(post_check == 6)/N
+```
+
+```{r 3M6}
+
+
 ```
 
