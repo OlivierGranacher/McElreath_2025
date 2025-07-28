@@ -1,0 +1,247 @@
+---
+title: "Chapter 3 - Sampling the imaginery"
+author: "OG"
+date: "7/16/2025"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(glue)
+```
+
+## 
+
+## 3.1 Sampling from the posterior  - page 52
+
+```{r "3_1_1"}
+# globe tossing grid approximation - calculating the posterior for the globe tossing example
+W <- 6 # Water
+L <- 3 # Land
+# What is the posterior distribution of the % of Water on Earth?
+N <- 100 # nb of values in grid
+prior <-  rep(1, N)
+# Probabilities of grid to test
+p <-seq(0, 1, length.out = N)
+grid_p <- p
+# Likelihood function
+lkl <- function(x, .W = W, .L = L) {
+stopifnot(x >= 0)
+stopifnot(x <= 1)
+dbinom(.W, .W + .L, x)
+}
+post <- lkl(p * prior)
+post <- dbinom(W, W + L, p )
+post <- post / sum(post)
+```
+
+```{r plot_density}
+ggplot(data = data.frame(x = p, y = post)) +
+  geom_line(aes(x, y))
+
+```
+
+```{r sampling_post}
+# Sampling proportional to posterior
+N <- 1e4
+samples <- sample(
+       x = grid_p, # Valeurs de la probabilité de la grille
+       prob = post,
+       replace = T,
+       size = N
+       )
+hist(samples, xlab = "probs", ylab = "", main = "Resampling from the Posterior", sub = "N = 10000", yaxt = "n", xlim = c(0, 1))
+# XY plot
+plot(x = 1:N, y = sort(samples), xaxt = "n", xlab = "", cex = 0.2)
+```
+
+
+## Practice Page 69
+### 3E
+
+```{r source HDI fn}
+source("R/function_highest_density_interval.R")
+```
+
+
+```{r E1, include=TRUE}
+# 3E1
+sum(samples < 0.2)/N
+# 3E2
+sum(samples > 0.8)/N
+# 3E3
+sum(samples > 0.8)/N + sum(samples < 0.2)/N
+# 3E4 20% of samples lie below which value of p?
+quantile(samples, 0.8)
+# 3E5
+quantile(samples, 0.2)
+# 3E6
+quantile(samples, 0.5)
+highest_density_interval(samples, 0.95)
+```
+
+```{r check HDI}
+#install.packages("HDInterval")
+HDInterval::hdi(samples, 0.95)
+# Install package bayestestR (easyStats)
+#install.packages("bayestestR")
+bayestestR::hdi(samples, 0.95)
+
+```
+```{r 3E}
+# 3E7
+quantile(samples, 1/3)
+quantile(samples, 2/3)
+```
+
+### 3M
+
+```{r 3M1}
+# Globe tossing grid example again
+W <- 8
+L <- 7
+N_grid <- 50 # Number of points for the grid
+prior <-  rep(1, N_grid)
+prob_grid <- seq(0, 1, length.out = N_grid)
+likelih <- dbinom(W, W + L, prob = prob_grid * prior)
+posterior <- likelih /sum(likelih)
+plot(x = prob_grid, posterior, type = "p", yaxt = "n", xlab = "", main = "Posterior for W = 8 L= 7", col.main = "red", xlim = c(0, 1), cex = .5, col = "darkorange3")
+```
+```{r 3M2}
+# Sampling from the posterior
+samples <- sample( x = prob_grid,
+                   size = 1e4,
+                   prob = posterior,
+                   replace = T
+                  )
+hist(samples, yaxt = "n", xlab = "probs", main = "10000 samples from the posterior", col = "red", sub = "W = 8, L = 7", xlim = c(0, 1))
+# 90% HPI
+highest_density_interval(samples, 0.9)
+```
+
+```{r 3M3}
+# Posterior predictive check
+N <- 1000 # nb of draws from the posterior
+W <- 8
+L <- 7
+post_check_15 <- rbinom(N, W + L, samples)
+hist(post_check_15)
+# Prob of 8 W in 15 tosses
+prob_8_15 <- sum(post_check_15 == 8) / N
+```
+
+```{r 3M4}
+# Prob of 6 in 9 tosses
+post_check_9 <- rbinom(N, 9, samples)
+# Prob of 6 W
+hist(post_check_9, xlim = c(0, 9))
+prob_6_9 <- sum(post_check_9 == 6) / N
+```
+
+
+```{r 3M5}
+# prior 0 below p = 0.5
+W <- 8
+L <- 7
+N <- 40
+prior <- c(rep(0, N/2), rep(1, N/2))
+grid_probs <- seq(0, 1, length.out = N)
+post <- dbinom(x = W, size = L + W, prob = grid_probs * prior)
+post_std <- post/sum(post)
+# Post Plot
+plot(x = grid_probs, y = post_std, yaxt = "n", ylab = "", main = "Prior = 0 below 0.5")
+# HPI 90%
+samples <- sample(grid_probs, size = 1e4, replace = T, prob = post_std)
+highest_density_interval(samples, .9)
+# Posterior predictive check
+N <- 1000
+post_check <- rbinom(N, 15, prob = samples)
+prob_8_15 # previous prediction
+prob_8_15_bis <- sum(post_check == 8)/N
+# Prob 6 in 9
+post_check <- rbinom(N, 9, prob = samples)
+prob_6_9 # previous value
+prob_6_9_bis <- sum(post_check == 6)/N
+```
+
+```{r 3M6}
+# 99% interval of 0.05
+pbinom(q = seq(0, 10, 1), size = 10, prob = .5) # probabilité que le résultat soit inférieur à q 
+qbinom(p = seq(0, 1, 0.1), size = 10, prob = .5) # Nombre de toss pour que la prob soit atteinte
+f_90_interval <- function(.size = 100) {
+  vec <- rbinom(100, size = .size, prob = 0.5)
+  #quantile(vec, c())
+  (quantile(vec, 0.99) - quantile(vec, 0.01))/.size
+}
+f_90_interval(1900)
+```
+
+```{r loi_normale}
+# Example de la loi normale
+pnorm(q = seq(-2, 2, 0.1))
+qnorm(seq(0, 1, 0.05))
+```
+
+### 3H1
+
+```{r}
+birth1 <- c(1,0,0,0,1,1,0,1,0,1,0,0,1,1,0,1,1,0,0,0,1,0,0,0,1,0,
+0,0,0,1,1,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,0,1,1,0,1,0,0,0,0,0,0,0,
+1,1,0,1,0,0,1,0,0,0,1,0,0,1,1,1,1,0,1,0,1,1,1,1,1,0,0,1,0,1,1,0,
+1,0,1,1,1,0,1,1,1,1)
+
+birth2 <- c(0,1,0,1,0,1,1,1,0,0,1,1,1,1,1,0,0,1,1,1,0,0,1,1,1,0,
+1,1,1,0,1,1,1,0,1,0,0,1,1,1,1,0,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,
+1,1,1,0,1,1,0,1,1,0,1,1,1,0,0,0,0,0,0,1,0,0,0,1,1,0,0,1,0,0,1,1,
+0,0,0,1,1,1,0,0,0,0)
+```
+
+
+```{r}
+#| label: compute_posterior
+males = sum(birth1) + sum(birth2)
+n_trails = length(birth1) + length(birth2)
+# probability grid
+probs = seq(0, 1, length.out = 100)
+prior <- rep(1, 100) # uniform prior
+post = dbinom(males, n_trails, probs * prior) # likelihood
+post <- post / sum(post) # normalize posterior
+# Probabilité maximale
+probs[which.max(post)]
+# Plot posterior
+plot(x = probs, y = post, type = "l", xlab = "p", ylab = "posterior", main = "Posterior for the birth example", col = "blue")
+```  
+
+
+```{r}
+#| label: sampling_posterior
+# Sampling from the posterior
+samples = sample(
+  x = probs,
+  size = 1e4,
+  prob = post,
+  replace = TRUE
+)
+# highest density intervals
+highest_density_interval(samples, 0.5)
+highest_density_interval(samples, 0.89)
+highest_density_interval(samples, 0.97)
+```
+
+
+```{r}
+#| label: posterior_predictive_check
+# 3H3
+post_pred = rbinom(1e4, size = 200, prob = samples) 
+hist(post_pred)
+```
+
+
+```{r}
+# first born
+(sum_1st_born <- sum(birth1))
+# post predictive check for first born
+post_check_1st_born <- rbinom(1e4, size = 100, prob = samples)
+hist(post_check_1st_born)
+```
