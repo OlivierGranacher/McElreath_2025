@@ -5,13 +5,12 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-## Introduction
+## 4.1 Normal Distribution
 
-This is an R Markdown document.
-
+- Generating a normal distribution from a uniform distribution
 ```{r}
-summary(cars)
-plot(cars)
+norm_distr = replicate(10000, sum(runif(16, -1, 1)))
+hist(norm_distr, breaks = 50, main = "Normal Distribution from Uniform Distribution", xlab = "", ylab = "",yaxt = "n")
 ```
 
 
