@@ -4,3 +4,5 @@
 *.woff
 *.png
 chapter*_files\
+.R*
+
