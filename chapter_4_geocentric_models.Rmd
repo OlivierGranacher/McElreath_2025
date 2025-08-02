@@ -5,12 +5,26 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+
+```{r setup}
+library(dplyr)
+library(ggplot2)
+```
+
 ## 4.1 Normal Distribution
 
 - Generating a normal distribution from a uniform distribution
-```{r}
+```{r generating_gaussian}
 norm_distr = replicate(10000, sum(runif(16, -1, 1)))
 hist(norm_distr, breaks = 50, main = "Normal Distribution from Uniform Distribution", xlab = "", ylab = "",yaxt = "n")
 ```
 
+
+## 4.3 Gaussian Model of height
+
+```{r data_load_Howell1}
+d <- read.csv2("data/Howell1.csv", dec = ".")
+glimpse(d)
+skimr::skim(d)
+```
 
