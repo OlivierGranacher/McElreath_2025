@@ -5,7 +5,6 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-
 ```{r setup}
 library(dplyr)
 library(ggplot2)
@@ -13,12 +12,12 @@ library(ggplot2)
 
 ## 4.1 Normal Distribution
 
-- Generating a normal distribution from a uniform distribution
+-   Generating a normal distribution from a uniform distribution
+
 ```{r generating_gaussian}
 norm_distr = replicate(10000, sum(runif(16, -1, 1)))
 hist(norm_distr, breaks = 50, main = "Normal Distribution from Uniform Distribution", xlab = "", ylab = "",yaxt = "n")
 ```
-
 
 ## 4.3 Gaussian Model of height
 
@@ -28,3 +27,18 @@ glimpse(d)
 skimr::skim(d)
 ```
 
+### Prior Predictive
+
+```{r, priors}
+# height ~ N(mu, s)
+# mu ~ N(178, 20)
+# s ~ UNI(, 50)
+curve(dnorm(x, 178, 20), from = 120, to = 240, main = "Prior mu ~ dnorm(178, 20)", col = "blue", lwd = 3)
+curve(dunif(x, 0, 50), from = -10, to = 60, col = "blue", lwd = 3, main = "s ~ unif(0, 50)")
+```
+
+```{r prior posterior}
+N <- 1e4
+post_prior <-  rnorm(N, mean = rnorm(100, 178, 20), sd = runif(100, 0, 50)) 
+hist(post_prior, fill = "lightblue")
+```
