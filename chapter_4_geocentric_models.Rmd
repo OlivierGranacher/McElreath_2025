@@ -42,3 +42,35 @@ N <- 1e4
 post_prior <-  rnorm(N, mean = rnorm(100, 178, 20), sd = runif(100, 0, 50)) 
 hist(post_prior, fill = "lightblue")
 ```
+
+## 4.4 Linear Model
+
+```{r plot_rel, include=TRUE}
+d <- d[d$height>18, ]
+plot(d$height ~ d$weight)
+```
+
+```{}
+```
+
+```{r priors}
+# for a normal N(178, 20)
+# for b (slope) : lognormal LN(0, 1)
+# Plot of lognormal prior
+mean_log <- 0
+sd_log <- 1
+ggplot() +
+  xlim(0.1, 10) +
+  geom_function(fun = dlnorm,
+                args = list(meanlog = mean_log,
+                            sdlog = sd_log, 
+                            log = F
+                ),
+                n = 1000
+                
+                )
+```
+
+
+```{r}
+```
