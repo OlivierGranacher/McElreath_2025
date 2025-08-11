@@ -90,3 +90,14 @@ ggplot(data = d, aes(x = weight, y = height)) +
   geom_abline(intercept = prior_a, slope = prior_b, alpha = .5) + 
   labs(title = "data and priors (slope and intercept")
 ```
+
+```{r posterior}
+post <- brms::brm(
+  formula = weight~height,
+  data = d,
+  file = "mod_lin_height_weight"
+)
+
+
+```
+
