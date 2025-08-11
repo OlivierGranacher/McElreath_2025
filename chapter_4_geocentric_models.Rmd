@@ -83,4 +83,10 @@ ggplot() +
 
 
 ```{r prior_slopes, include=TRUE}
+prior_a <-  rnorm(50, 100, 15)
+prior_b <-  rlnorm(50, 0, 1)
+ggplot(data = d, aes(x = weight, y = height)) +
+  geom_point(alpha = .3, color = "darkred") +
+  geom_abline(intercept = prior_a, slope = prior_b, alpha = .5) + 
+  labs(title = "data and priors (slope and intercept")
 ```
