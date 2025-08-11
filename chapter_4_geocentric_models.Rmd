@@ -8,6 +8,7 @@ output: html_document
 ```{r setup}
 library(dplyr)
 library(ggplot2)
+theme_set(theme_bw())
 ```
 
 ## 4.1 Normal Distribution
@@ -50,10 +51,18 @@ d <- d[d$height>18, ]
 plot(d$height ~ d$weight)
 ```
 
-```{}
+```{R priors_0}
+norm_0_1 <- rnorm(10000)
+log_norm <- exp(norm_0_1)
+rlnorm <- rlnorm(n = 10000, meanlog = 0, sdlog = 1)
+data <- data.frame(norm_0_1, rlnorm, log_norm) |> 
+  tidyr::pivot_longer(cols = everything())
+ggplot(data, aes(x = value, fill = name)) +
+  geom_density(alpha = .4) +
+  coord_cartesian(xlim = c(-3, 10))
 ```
 
-```{r priors}
+```{r priors, include=TRUE}
 # for a normal N(178, 20)
 # for b (slope) : lognormal LN(0, 1)
 # Plot of lognormal prior
@@ -67,10 +76,11 @@ ggplot() +
                             log = F
                 ),
                 n = 1000
-                
-                )
+                ) + 
+  geom_vline(xintercept = exp(0))
+
 ```
 
 
-```{r}
+```{r prior_slopes, include=TRUE}
 ```
