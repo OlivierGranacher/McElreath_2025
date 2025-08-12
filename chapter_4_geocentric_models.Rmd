@@ -91,13 +91,27 @@ ggplot(data = d, aes(x = weight, y = height)) +
   labs(title = "data and priors (slope and intercept")
 ```
 
-```{r posterior}
+```{r posterior_calculation}
+library(brms)
+priors <- c(
+  prior(normal(100, 15), class = "Intercept"),
+  prior(lognormal(0, 1), class = "b"),
+  prior(uniform(0, 1), class = "sigma")
+)
 post <- brms::brm(
-  formula = weight~height,
+  formula = height~weight,
   data = d,
-  file = "mod_lin_height_weight"
+  file = "mod_lin_height_weight", # prevents compiling
+  cores = 2,
+  chains = 2,
+  iter = 1000,
+  prior = priors
 )
 
 
+```
+
+```{r post_analysis}
+posterior_summary(post) 
 ```
 
