@@ -47,7 +47,7 @@ hist(post_prior, fill = "lightblue")
 ## 4.4 Linear Model
 
 ```{r plot_rel, include=TRUE}
-d <- d[d$height>18, ]
+d <- d[d$age>18, ]
 plot(d$height ~ d$weight)
 ```
 
@@ -105,7 +105,7 @@ post <- brms::brm(
   cores = 2,
   chains = 2,
   iter = 1000,
-  prior = priors
+ # prior = priors
 )
 
 
