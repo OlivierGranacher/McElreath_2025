@@ -81,7 +81,6 @@ ggplot() +
 
 ```
 
-
 ```{r prior_slopes, include=TRUE}
 prior_a <-  rnorm(50, 100, 15)
 prior_b <-  rlnorm(50, 0, 1)
@@ -98,20 +97,20 @@ priors <- c(
   prior(lognormal(0, 1), class = "b"),
   prior(uniform(0, 1), class = "sigma")
 )
-post <- brms::brm(
+fit <- brms::brm(
   formula = height~weight,
-  data = d,
-  file = "mod_lin_height_weight", # prevents compiling
-  cores = 2,
-  chains = 2,
-  iter = 1000,
- # prior = priors
+  file = "linear_height_weight",
+  data = d
 )
-
-
+fit$iter
+fit$chains
 ```
 
 ```{r post_analysis}
 posterior_summary(post) 
 ```
 
+```{r post_draws}
+post = brms::as_draws_df(fit) |> 
+    select(starts_with("b_"))
+```
