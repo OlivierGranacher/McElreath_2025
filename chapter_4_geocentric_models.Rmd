@@ -134,7 +134,6 @@ posterior_interval(fit)
 ```
 
 
-=======
 ```{r post_draws}
 post = brms::as_draws_df(fit) |> 
     select(starts_with("b_"))
