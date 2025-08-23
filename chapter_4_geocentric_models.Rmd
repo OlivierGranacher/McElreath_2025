@@ -47,7 +47,7 @@ hist(post_prior, fill = "lightblue")
 ## 4.4 Linear Model
 
 ```{r plot_rel, include=TRUE}
-d <- d[d$height>18, ]
+d <- d[d$age>18, ]
 plot(d$height ~ d$weight)
 ```
 
@@ -95,23 +95,43 @@ ggplot(data = d, aes(x = weight, y = height)) +
 library(brms)
 priors <- c(
   prior(normal(100, 15), class = "Intercept"),
-  prior(lognormal(0, 1), class = "b"),
-  prior(uniform(0, 1), class = "sigma")
+  prior(normal(1, 1), class = "b"),
+  prior(uniform(0, 50), class = "sigma")
 )
-post <- brms::brm(
+brms::make_stancode(
   formula = height~weight,
   data = d,
-  file = "mod_lin_height_weight", # prevents compiling
-  cores = 2,
-  chains = 2,
-  iter = 1000,
   prior = priors
 )
+fit <- brms::brm(
+  formula = height~weight,
+  data = d,
+  #file = "mod_lin_height_weight", # prevents compiling
+  cores = 2,
+  chains = 4,
+  iter = 4000,
+  prior = priors
+)
+sjPlot::tab_model(fit)
 
+# lm for reference
+lm_fit <- lm(height~weight, data = d)
+sjPlot::tab_model(lm_fit)
 
 ```
 
 ```{r post_analysis}
-posterior_summary(post) 
+posterior_summary(fit) 
 ```
+
+### Visualize the uncertainty on the average line
+
+```{r draw_fit_posterior}
+post <- brms::as_draws_df(fit) 
+```
+
+```{r post_uncertainty_interval}
+posterior_interval(fit)
+```
+
 
