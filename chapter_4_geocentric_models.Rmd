@@ -81,7 +81,6 @@ ggplot() +
 
 ```
 
-
 ```{r prior_slopes, include=TRUE}
 prior_a <-  rnorm(50, 100, 15)
 prior_b <-  rlnorm(50, 0, 1)
@@ -109,8 +108,8 @@ fit <- brms::brm(
   #file = "mod_lin_height_weight", # prevents compiling
   cores = 2,
   chains = 4,
-  iter = 4000,
-  prior = priors
+  iter = 4000
+ # prior = priors
 )
 sjPlot::tab_model(fit)
 
@@ -133,5 +132,13 @@ post <- brms::as_draws_df(fit)
 ```{r post_uncertainty_interval}
 posterior_interval(fit)
 ```
+
+
+=======
+```{r post_draws}
+post = brms::as_draws_df(fit) |> 
+    select(starts_with("b_"))
+```
+
 
 
