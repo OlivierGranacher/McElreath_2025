@@ -140,5 +140,19 @@ post = brms::as_draws_df(fit) |>
     select(starts_with("b_"))
 ```
 
+```{r table_pred_post}
+# Table de prédiction pour chaque ligne du posterior et chaque valeur de weight
+## function de prevision
+b_int <- mean(post$b_Intercept)
+b_slope  <- mean(post$b_weight)
+f_height <- function(w = 45.04, .b = b_slope, .i = b_int) {
+  .i + .b * w
+}
+## Création de la table des valeurs
+## 
+post_result <- sapply(d$weight, FUN = f_height, .b = post$b_weight, .i = post$b_Intercept)
+# Ajout des colonnes de post
+post_result <- cbind(post, post_result)
+```
 
 
