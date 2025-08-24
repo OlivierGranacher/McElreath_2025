@@ -99,8 +99,7 @@ priors <- c(
 )
 brms::make_stancode(
   formula = height~weight,
-  data = d,
-  prior = priors
+  data = d
 )
 fit <- brms::brm(
   formula = height~weight,
@@ -160,20 +159,23 @@ post_result <- cbind(post, post_result)
 
 ```{r analyse_pred_post}
 ## Plot ic pour la prédiction
-weights_new <- seq(31, 70, 1)
+weights_new <- seq(20, 70, 1)
 values <- f_height_vec(weights_new)
-q_5 <- apply(values, 2, FUN = quantile, 0.05)
+q_1 <- apply(values, 2, FUN = quantile, 0.01)
 q_50 <- apply(values, 2, FUN = quantile, 0.5)
-q_95 <- apply(values, 2, FUN = quantile, 0.95)
+q_99 <- apply(values, 2, FUN = quantile, 0.99)
 d_new <- data.frame(
-  w = weights_new,
-  q_5,
+  weights = weights_new,
+  q_1,
   q_50,
-  q_95
+  q_99
 )
 ## Plot ic height
-ggplot(d_new, aes(x = w)) +
-  geom_ribbon(aes(ymin = q_5, ymax = q_95), alpha = .5) + 
-  geom_point(data = d, aes(weight, height))
+ggplot(d_new, aes(x = weights)) +
+  geom_ribbon(aes(ymin = q_1, ymax = q_99), alpha = .5) + 
+  geom_point(data = d, aes(weight, height), alpha = .5) +
+  labs(title = "IC 98 prediction Mean due à l'incertitude sur les coefficients")
+  
 ```
 
+## Visualisation de la prediction sur les valeurs individuelles
