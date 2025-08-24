@@ -144,14 +144,36 @@ post = brms::as_draws_df(fit) |>
 ## function de prevision
 b_int <- mean(post$b_Intercept)
 b_slope  <- mean(post$b_weight)
-f_height <- function(w = 45.04, .b = b_slope, .i = b_int) {
-  .i + .b * w
+f_height <- function(w = 45.04, b = b_slope, a = b_int) {
+  a + b * w
+}
+## fonction vectorisée
+f_height_vec <- function(x, b = post$b_weight, a = post$b_Intercept){
+  sapply(x, f_height, b, a)
 }
 ## Création de la table des valeurs
-## 
-post_result <- sapply(d$weight, FUN = f_height, .b = post$b_weight, .i = post$b_Intercept)
+post_result <- sapply(d$weight, FUN = f_height, b = post$b_weight, a = post$b_Intercept)
+post_result <- f_height_vec(d$weight, post$b_weight, post$b_Intercept)
 # Ajout des colonnes de post
 post_result <- cbind(post, post_result)
 ```
 
+```{r analyse_pred_post}
+## Plot ic pour la prédiction
+weights_new <- seq(31, 70, 1)
+values <- f_height_vec(weights_new)
+q_5 <- apply(values, 2, FUN = quantile, 0.05)
+q_50 <- apply(values, 2, FUN = quantile, 0.5)
+q_95 <- apply(values, 2, FUN = quantile, 0.95)
+d_new <- data.frame(
+  w = weights_new,
+  q_5,
+  q_50,
+  q_95
+)
+## Plot ic height
+ggplot(d_new, aes(x = w)) +
+  geom_ribbon(aes(ymin = q_5, ymax = q_95), alpha = .5) + 
+  geom_point(data = d, aes(weight, height))
+```
 
