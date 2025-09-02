@@ -47,8 +47,11 @@ hist(post_prior, fill = "lightblue")
 ## 4.4 Linear Model
 
 ```{r plot_rel, include=TRUE}
+d_tot <- d
 d <- d[d$age>18, ]
-plot(d$height ~ d$weight)
+plot(d$height ~ d$weight, main = "Corrélation weight / height for age > 18")
+plot(d_tot$height ~ d_tot$weight, main = "Corrélation weight / height for all ages")
+
 ```
 
 ```{R priors_0}
@@ -104,8 +107,8 @@ brms::make_stancode(
 fit <- brms::brm(
   formula = height~weight,
   data = d,
-  #file = "mod_lin_height_weight", # prevents compiling
-  cores = 2,
+  file = "mod_lin_height_weight", # prevents compiling
+  cores = 4,
   chains = 4,
   iter = 4000
  # prior = priors
@@ -135,7 +138,7 @@ posterior_interval(fit)
 
 ```{r post_draws}
 post = brms::as_draws_df(fit) |> 
-    select(starts_with("b_"))
+    select(b_Intercept, b_weight, sigma)
 ```
 
 ```{r table_pred_post}
@@ -150,7 +153,7 @@ f_height <- function(w = 45.04, b = b_slope, a = b_int) {
 f_height_vec <- function(x, b = post$b_weight, a = post$b_Intercept){
   sapply(x, f_height, b, a)
 }
-## Création de la table des valeurs
+## Création de la table des valeurs moyennes
 post_result <- sapply(d$weight, FUN = f_height, b = post$b_weight, a = post$b_Intercept)
 post_result <- f_height_vec(d$weight, post$b_weight, post$b_Intercept)
 # Ajout des colonnes de post
@@ -179,3 +182,14 @@ ggplot(d_new, aes(x = weights)) +
 ```
 
 ## Visualisation de la prediction sur les valeurs individuelles
+
+```{r pred_ind_values}
+weights_new
+# fonction de génération des valeurs de prédiction individuelles
+pred_height <- function(mu, sigma) {
+  rnorm(length(mu), mu, sigma)
+}
+# post long : post values for each new weight
+grid <- expand.grid(post, weights_new)
+```
+
