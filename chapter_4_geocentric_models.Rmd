@@ -122,7 +122,7 @@ sjPlot::tab_model(lm_fit)
 ```
 
 ```{r post_analysis}
-posterior_summary(fit) 
+brms::posterior_summary(fit) 
 ```
 
 ### Visualize the uncertainty on the average line
@@ -139,12 +139,6 @@ posterior_interval(fit)
 ```{r post_draws}
 post = brms::as_draws_df(fit) |> 
     select(b_Intercept, b_weight, sigma)
-```
-
-```{r table_pred_post}
-# Table de prédiction pour chaque ligne du posterior et chaque valeur de weight
-## function de prevision
-b_int <- mean(post$b_Intercept)
 b_slope  <- mean(post$b_weight)
 f_height <- function(w = 45.04, b = b_slope, a = b_int) {
   a + b * w
@@ -185,11 +179,11 @@ ggplot(d_new, aes(x = weights)) +
 
 ```{r pred_ind_values}
 weights_new
-# fonction de génération des valeurs de prédiction individuelles
-pred_height <- function(mu, sigma) {
-  rnorm(length(mu), mu, sigma)
+# fonction de génération des valeurs de prédiction individuelles avec sigma
+pred_height_ind <- function(w) {
+  rnorm(length(w), post$b_Intercept + post$b_weight, post$sigma)
 }
-# post long : post values for each new weight
-grid <- expand.grid(post, weights_new)
+pred_height_ind(50)
+
 ```
 
