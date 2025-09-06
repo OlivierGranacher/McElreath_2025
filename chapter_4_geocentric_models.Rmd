@@ -169,7 +169,7 @@ d_new <- data.frame(
 )
 ## Plot ic height
 ggplot(d_new, aes(x = weights)) +
-  geom_ribbon(aes(ymin = q_1, ymax = q_99), alpha = .5) + 
+  geom_ribbon(aes(ymin = q_1, ymax = q_99), alpha = .5, fill = "pink") + 
   geom_point(data = d, aes(weight, height), alpha = .5) +
   labs(title = "IC 98 prediction Mean due à l'incertitude sur les coefficients")
   
@@ -180,10 +180,22 @@ ggplot(d_new, aes(x = weights)) +
 ```{r pred_ind_values}
 weights_new
 # fonction de génération des valeurs de prédiction individuelles avec sigma
-pred_height_ind <- function(w) {
-  rnorm(length(w), post$b_Intercept + post$b_weight, post$sigma)
+b_mean <- mean(post$b_weight)
+a_mean <- mean(post$b_Intercept)
+s_mean <- mean(post$sigma)
+# function de prediction de valeur individuelle
+pred_height_ind <- function(w, a = a_mean, b = b_mean, s = s_mean) {
+  rnorm(length(a), a + b * w, s)
 }
 pred_height_ind(50)
+pred_height_ind(weights_new)
+pred_height_ind(50, post$b_Intercept, post$b_weight, post$sigma)
+# Matrice de prediction des valeurs individuelles de w pour chaque ligne du postérieur
+mat_result <- sapply(weights_new, FUN = pred_height_ind, a = post$b_Intercept, b = post$b_weight, s = post$sigma)
+str(mat_result)
+```
+
+```{r plot_ic_ind, include=TRUE}
 
 ```
 
