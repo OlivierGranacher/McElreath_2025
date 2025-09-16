@@ -196,6 +196,15 @@ str(mat_result)
 ```
 
 ```{r plot_ic_ind, include=TRUE}
+ic_ind <- apply(mat_result, MARGIN = 2, FUN = quantile, probs = c(0.05, 0.95) )
+ic_ind <- cbind(weights_new, as.data.frame(t(ic_ind)))
+ggplot(ic_ind, aes(x = weights_new)) +
+  geom_line(aes(y = `5%`), lty = 3) +
+  geom_line(aes(y = `95%`), lty = 3) + 
+  labs(title = "IC prediction valeurs individuelles")
+```
+
+```{r}
 
 ```
 
