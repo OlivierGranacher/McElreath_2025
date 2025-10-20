@@ -135,7 +135,6 @@ post <- brms::as_draws_df(fit)
 posterior_interval(fit)
 ```
 
-
 ```{r post_draws}
 post = brms::as_draws_df(fit) |> 
     select(b_Intercept, b_weight, sigma)
@@ -207,4 +206,3 @@ ggplot(ic_ind, aes(x = weights_new)) +
 ```{r}
 
 ```
-
