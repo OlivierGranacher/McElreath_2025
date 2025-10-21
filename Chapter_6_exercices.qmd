@@ -18,7 +18,9 @@ library(ggplot2)
 # Simulated data with a strong collinearity between X and Z
 N = 100
 X = rnorm(N, 0, 1)
+# Coefficient Z X = 4
 Z = rnorm(N, 4 * X, .5)
+# Coefficient Y/Z = 0.5
 Y = rnorm(N, 0.5 * Z, 1)
 ddd = data.frame(X, Y, Z)
 ```
@@ -38,6 +40,40 @@ labs(title = "Y vs Z")
 ```{r}
 #| label: lm_model
 # lm Y <- X + Z
-lm_1 = lm(formula = Y ~ X + Z, data = ddd)
-summary(lm_1)
+lm_YZX = lm(formula = Y ~ X + Z, data = ddd)
+summary(lm_YZX)
+# Pas de correlation significative
+```
+
+```{r}
+#| label: lm_model_2
+# lm Y <- X
+lmYX = lm(formula = Y~X, data = ddd)
+summary(lmYX)
+# Coefficient 2 (4 x 0.5) correct
+```
+
+```{r}
+#| label: test_brms
+library(brms)
+# Define priors
+priors <- c(
+  set_prior("normal(0, 2)", class = "b"),         # Prior for slope
+  set_prior("normal(0, 1)", class = "Intercept"), # Prior for intercept
+  set_prior("exponential(1)", class = "sigma")    # Prior for residual SD
+)
+# fit
+fit = brm(
+    formula = Y ~ X,
+    data = ddd,
+    iter = 4000,
+    cores = 4,
+    file = "brm_mod_yx"
+    )
+# summary of fit
+summary(fit)
+# Plot fit
+plot(fit)
+# Posterior df
+as_draws_df(fit)Ò
 ```
