@@ -1,0 +1,43 @@
+---
+title: "Chapter 6 Exercices"
+format: html
+date: "`r Sys.Date()`"
+---
+
+```{r}
+#| label: setup
+library(tidyr)
+library(ggplot2)
+```
+
+## 6M2
+
+```{r}
+#| label: data_define
+# X -> Z -> Y
+# Simulated data with a strong collinearity between X and Z
+N = 100
+X = rnorm(N, 0, 1)
+Z = rnorm(N, 4 * X, .5)
+Y = rnorm(N, 0.5 * Z, 1)
+ddd = data.frame(X, Y, Z)
+```
+
+```{r}
+#| label: plots
+# Z vs X
+ggplot(ddd, aes(X, Z)) + 
+geom_point() + 
+labs(title = "Z vs X" )
+# Y vs Z
+ggplot(ddd, aes(Z, Y)) +
+geom_point(color = "blue") +
+labs(title = "Y vs Z")
+```
+
+```{r}
+#| label: lm_model
+# lm Y <- X + Z
+lm_1 = lm(formula = Y ~ X + Z, data = ddd)
+summary(lm_1)
+```
