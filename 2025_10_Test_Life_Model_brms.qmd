@@ -1,0 +1,68 @@
+---
+title: "Test life Model brms"
+format: html
+---
+
+## Objectif
+
+> Pratique d'un modèle de durée de vie par groupe sur la base du package brms
+
+```{r}
+#| label: setup
+library(dplyr)
+library(ggplot2)
+library(brms)
+```
+
+```{r}
+#| label: params
+N <- 100 # nombre obs
+mean_life <- 2000
+effect_1 <- -500
+effect_2 <- + 100
+
+```
+
+```{r}
+#| label: generate_data
+d = data.frame(
+    Y = rnorm(N, mean_life, 100),
+    censored = rbinom(N, 1, 0.5),
+    X1 = rbinom(N, 1, 0.3), # 30% des valeurs sont affectées par X1
+    X2 = rbinom(N, 1, 0.2) # 20% des valeurs sont affectées par X2
+)
+# Ajout des effets de X1 et X2
+d = d |> 
+    mutate(Y = Y + effect_1 * (X1 == 1),
+           Y = Y + effect_2 * (X2 == 1)
+          )
+# brms expects a column used by cens() with values:
+# "none" for observed events, "right" for right-censored observations
+d = d |> 
+    mutate(censored = if_else(censored == 1, "none", "right"))
+
+```
+
+```{r}
+#| label: model_bf
+priors <- c(
+  prior(normal(0, 200), class = "b"),        # regression coefficients
+  prior(normal(2000, 200), class = "Intercept"),
+  prior(gamma(2, 0.1), class = "shape")    # prior for Weibull shape (positive)
+)
+# formula 
+f = bf(Y | cens(censored) ~ X1 + X2 )
+# fit
+fit = brm(
+    formula = f,
+    data = d,
+    family = weibull(),
+    prior = priors,
+    chain = 4,
+    iter = 4000,
+    file = "weib_2_categorical",
+    seed = 2025
+)
+# summary
+summary(fit)
+```

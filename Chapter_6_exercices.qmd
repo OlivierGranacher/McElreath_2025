@@ -68,12 +68,13 @@ fit = brm(
     data = ddd,
     iter = 4000,
     cores = 4,
-    file = "brm_mod_yx"
+    file = "brm_mod_yx",
+    prior = priors
     )
 # summary of fit
 summary(fit)
 # Plot fit
 plot(fit)
 # Posterior df
-as_draws_df(fit)Ò
+as_draws_df(fit)
 ```
